@@ -27,7 +27,7 @@ export function createTRPCClient() {
         transformer: superjson,
         async headers() {
           const token = await Auth.getSessionToken();
-          return token ? { Authorization: `Bearer ${token}` } : {};
+          return token ? { Authorization: `License ${token}` } : {};
         },
         // Custom fetch to include credentials for cookie-based auth
         fetch(url, options) {

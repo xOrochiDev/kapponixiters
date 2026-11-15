@@ -42,6 +42,18 @@ export function trustedExpoWebOrigins(): Set<string> {
     const paired = pairedPreviewOrigin(packager);
     if (paired) origins.add(paired);
   }
+  // Public static frontend origins are explicit; never allow arbitrary *.github.io origins.
+  for (const configured of (process.env.PUBLIC_WEB_ORIGINS ?? "").split(",")) {
+    const origin = configured.trim();
+    if (origin) {
+      try {
+        const url = new URL(origin);
+        if (url.protocol === "https:" && url.origin === origin) origins.add(origin);
+      } catch {
+        // Ignore malformed configuration rather than widening CORS.
+      }
+    }
+  }
   return origins;
 }
 

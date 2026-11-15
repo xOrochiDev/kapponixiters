@@ -25,7 +25,8 @@ export async function apiCall<T>(endpoint: string, options: RequestInit = {}): P
       console.log("[API] Authorization header added");
     }
   } else {
-    console.log("[API] Web request prepared");
+    const sessionToken = await Auth.getSessionToken();
+    if (sessionToken) headers["Authorization"] = `License ${sessionToken}`;
   }
 
   const baseUrl = getApiBaseUrl();
@@ -116,8 +117,12 @@ export async function getMe(): Promise<{
   try {
     const baseUrl = getApiBaseUrl().replace(/\/$/, "");
     const url = baseUrl ? `${baseUrl}/api/auth/me` : "/api/auth/me";
+    const sessionToken = await Auth.getSessionToken();
     const response = await fetch(url, {
-      headers: { Accept: "application/json" },
+      headers: {
+        Accept: "application/json",
+        ...(sessionToken ? { Authorization: `License ${sessionToken}` } : {}),
+      },
       credentials: "include",
     });
     if (response.status === 401) return null;

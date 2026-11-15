@@ -1,0 +1,64 @@
+name: Deploy web frontend to GitHub Pages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Require Manus API origin
+        env:
+          MANUS_API_BASE_URL: ${{ vars.MANUS_API_BASE_URL }}
+        run: test -n "$MANUS_API_BASE_URL"
+
+      - name: Export web frontend
+        env:
+          EXPO_PUBLIC_API_BASE_URL: ${{ vars.MANUS_API_BASE_URL }}
+        run: pnpm exec expo export -p web --output-dir dist-web
+
+      - name: Preserve SPA fallback
+        run: cp dist-web/index.html dist-web/404.html
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist-web
+
+      - name: Deploy to Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

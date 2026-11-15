@@ -2,6 +2,7 @@ FROM node:22-bookworm-slim
 
 WORKDIR /app
 ENV NODE_ENV=production
+ENV PUBLIC_WEB_ORIGINS=https://xorochidev.github.io
 
 RUN corepack enable && corepack prepare pnpm@9.12.0 --activate
 

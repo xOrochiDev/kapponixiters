@@ -13,6 +13,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { demoLicenses, demoProducts } from "@/lib/keyforge-demo";
 import { trpc } from "@/lib/trpc";
+import * as Auth from "@/lib/_core/auth";
 import type { KeygenAuditEvent, KeygenProductTokenSummary, KeygenResource } from "@/server/keygen";
 import {
   ActionButton,
@@ -579,6 +580,7 @@ export default function HomeScreen() {
       const checked = await validateLoginKey.mutateAsync({ username, key });
       validateLoginKey.reset();
       if (!checked.valid) throw new Error("El usuario o la clave no se pudieron verificar con Keygen.");
+      if ("sessionToken" in checked && checked.sessionToken) await Auth.setSessionToken(checked.sessionToken);
       setLoginNotice("Licencia verificada. Abriendo tu panel…");
       await refresh();
     } catch (error) {

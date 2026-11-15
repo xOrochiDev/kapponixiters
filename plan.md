@@ -33,6 +33,8 @@ La identidad visual toma la misma foto, el nombre **AlkaponeDollar**, el fondo n
 - `public/manus-routes.json`: declaración de la ruta de página `/` del preview web.
 - `docs/keygen-integration.md`: decisiones de integración y referencia oficial de Keygen.
 - `Dockerfile`: runtime de producción de la API, separado del bundle web estático.
+- `.github/workflows/deploy-pages.yml`: exportación y publicación del frontend web en GitHub Pages usando `MANUS_API_BASE_URL` como variable pública de build.
+- `docs/github-pages-manus.md`: configuración y límites de la arquitectura híbrida.
 
 ## Comportamiento y seguridad
 
@@ -41,3 +43,5 @@ El runtime enlazado ofrece el preview web en el puerto 8081 y la API en el 3000.
 La entrega web usa bundle estático para la interfaz y contenedor para `/api/*`, con cookies de sesión `SameSite=None; Secure` en producción HTTPS. La configuración PWA queda en modo administrado por la plataforma y usa el avatar de AlkaponeDollar como logo; el layout móvil prioriza drawer, safe areas, targets táctiles y modales que no desbordan la pantalla.
 
 La API real consulta y crea productos, consulta policies, emite licencias mediante una policy existente, suspende/reactiva licencias, lista y desactiva máquinas con confirmación, y consulta hasta 100 Event Logs recientes cuando Keygen permite `event-log.read`. El cliente recibe claves enmascaradas salvo la clave recién generada, mostrada en su confirmación; no recibe metadata sensible de eventos ni el token de Keygen. Si Event Logs Beta o el permiso faltan, el panel presenta una explicación sin simular actividad real.
+
+El frontend también puede publicarse en GitHub Pages. Para soportar un origen distinto al backend, el navegador conserva el token de sesión de licencia en almacenamiento local y lo envía como `Authorization: License`; el backend acepta únicamente el origen GitHub Pages exacto y mantiene las credenciales Keygen server-only.
